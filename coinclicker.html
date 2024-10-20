@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Coin Clicker</title>
+
+    <!-- Favicon -->
+    <link rel="icon" href="https://static.vecteezy.com/system/resources/thumbnails/018/745/974/small_2x/bitcoin-cryptocurrency-in-pixel-art-style-illustration-free-png.png" type="image/png">
+
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+            margin: 0;
+            flex-direction: row;
+        }
+
+        #container {
+            text-align: center;
+            margin-right: 20px;
+        }
+
+        h1 {
+            margin: 0;
+        }
+
+        .shadow-btn {
+            background-color: #6200ea;
+            color: white;
+            border: none;
+            padding: 15px;
+            font-size: 18px;
+            cursor: pointer;
+            border-radius: 5px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            transition: transform 0.2s ease, box-shadow 0.3s ease;
+        }
+
+        .shadow-btn:hover {
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.4);
+            transform: scale(1.05);
+        }
+
+        .shadow-btn:active {
+            transform: scale(0.95);
+        }
+
+        #clickButton {
+            background: none;
+            border: none;
+            padding: 0;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+
+        #clickButton img {
+            width: 100px;
+            height: auto;
+            transition: transform 0.2s ease;
+        }
+
+        /* Coin Animation */
+        #clickButton:hover img {
+            transform: scale(1.1);
+        }
+
+        #clickButton:active img {
+            transform: scale(0.9);
+        }
+
+        #stats, #upgrades {
+            margin-top: 20px;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: white;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+
+        #upgrades {
+            height: 300px;
+            overflow-y: auto;
+            width: 300px;
+        }
+
+        .upgrade {
+            display: flex;
+            justify-content: space-between;
+            margin: 5px 0;
+        }
+
+        @media (max-width: 600px) {
+            body {
+                flex-direction: column;
+                padding: 10px;
+            }
+            #container, #stats, #upgrades {
+                margin: 10px 0;
+            }
+            #upgrades {
+                width: 100%;
+                height: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="container">
+        <h1>Coin Clicker</h1>
+        <h2>Coins: <span id="value">0</span></h2>
+        <button id="clickButton" onclick="increase()">
+            <img src="https://static.vecteezy.com/system/resources/thumbnails/018/745/974/small_2x/bitcoin-cryptocurrency-in-pixel-art-style-illustration-free-png.png" 
+                 alt="Click to earn coins">
+        </button>
+        <div>
+            <button class="shadow-btn" onclick="rebirth()">Rebirth (Cost: 1000 Coins)</button>
+            <button class="shadow-btn" onclick="superRebirth()">Super Rebirth: 5 Rebirths</button>
+        </div>
+    </div>
+
+    <div id="stats">
+        <h2>Stats</h2>
+        <p>Coins Per Second: <span id="cps">0</span></p>
+        <p>Coins Per Click: <span id="clickPower">1</span></p>
+        <p>Rebirth Count: <span id="rebirthCount">0</span></p>
+        <p>Multiplier: <span id="multiplier">1</span></p>
+        <p>Super Rebirths: <span id="superRebirthCount">0</span></p>
+    </div>
+
+    <div id="upgrades">
+        <h2>Upgrades</h2>
+        <div class="upgrade">
+            <button class="shadow-btn" onclick="buyClickPower(1)">+1 CPC (Cost: 10 Coins)</button>
+        </div>
+        <div class="upgrade">
+            <button class="shadow-btn" onclick="buyClickPower(10)">+10 CPC (Cost: 100 Coins)</button>
+        </div>
+        <div class="upgrade">
+            <button class="shadow-btn" onclick="buyCps(1)">+1 CPS (Cost: 25 Coins)</button>
+        </div>
+        <div class="upgrade">
+            <button class="shadow-btn" onclick="buyCps(5)">+5 CPS (Cost: 100 Coins)</button>
+        </div>
+        <div class="upgrade">
+            <button class="shadow-btn" onclick="buyMultiplier()">Double Multiplier (Cost: 500 Coins)</button>
+        </div>
+    </div>
+
+    <audio id="coinSound" src="https://jay.com/button/sounds/button-16.mp3"></audio>
+
+    <script>
+        let count = 0, cps = 0, clickPower = 1, multiplier = 1, rebirthCount = 0, superRebirthCount = 0;
+
+        function increase() {
+            count += clickPower;
+            document.getElementById("coinSound").play();
+            updateDisplay();
+        }
+
+        function buyClickPower(amount) {
+            const cost = amount * 10;
+            if (count >= cost) {
+                count -= cost;
+                clickPower += amount;
+                updateDisplay();
+            } else alert(`You need ${cost} coins!`);
+        }
+
+        function buyCps(amount) {
+            const cost = amount * 25;
+            if (count >= cost) {
+                count -= cost;
+                cps += amount;
+                updateDisplay();
+            } else alert(`You need ${cost} coins!`);
+        }
+
+        function buyMultiplier() {
+            if (count >= 500) {
+                count -= 500;
+                multiplier *= 2;
+                updateDisplay();
+            } else alert("You need 500 coins!");
+        }
+
+        function rebirth() {
+            if (count >= 1000) {
+                rebirthCount++;
+                multiplier *= 2;
+                resetStats();
+            } else alert("Need 1000 coins to rebirth!");
+            updateDisplay();
+        }
+
+        function superRebirth() {
+            if (rebirthCount >= 5) {
+                rebirthCount -= 5;
+                superRebirthCount++;
+                multiplier *= 2.5;
+                resetStats();
+            } else alert("Need 5 rebirths!");
+            updateDisplay();
+        }
+
+        function resetStats() { count = cps = clickPower = 0; }
+
+        function updateDisplay() {
+            document.getElementById("value").innerText = Math.floor(count);
+            document.getElementById("cps").innerText = cps;
+            document.getElementById("clickPower").innerText = clickPower;
+            document.getElementById("rebirthCount").innerText = rebirthCount;
+            document.getElementById("multiplier").innerText = multiplier;
+            document.getElementById("superRebirthCount").innerText = superRebirthCount;
+        }
+
+        setInterval(() => { count += (cps * multiplier) / 10; updateDisplay(); }, 100);
+
+        function saveGame() {
+            localStorage.setItem('coinClicker', JSON.stringify({ count, cps, clickPower, multiplier, rebirthCount, superRebirthCount }));
+        }
+
+        function loadGame() {
+            const saved = JSON.parse(localStorage.getItem('coinClicker'));
+            if (saved) Object.assign(window, saved);
+            updateDisplay();
+        }
+
+        window.onload = loadGame;
+        window.onbeforeunload = saveGame;
+    </script>
+</body>
+</html>
